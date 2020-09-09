@@ -14,9 +14,6 @@
         </b-form-group>
     </b-container>
     <b-container v-else>
-        <b-jumbotron>
-          <p>Trạng thái attacking: {{ stateAttacking }}</p>
-        </b-jumbotron>
         <b-row>
           <b-col>
             <b-button @click="getRoomList">Refresh Room</b-button>
@@ -115,7 +112,7 @@ export default {
         { key: 'actions', label: 'Actions' }
       ],
       roomList: [],
-      key: '1284131423787738530',
+      key: '1284139985398150948',
       state: false,
       roomId: '',
     }
@@ -140,11 +137,9 @@ export default {
       },
     getRoomList () {
       this.isBusy = true;
-      // var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      var proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
       var targetUrl = 'http://www.litatom.com/api/sns/v1/lit/user/get_party_list?page_num=1&page_size=100&loc=US&sid=session.' + this.key + '&version=3.7.1&uuid=1944739c55bbc885';
-      fetch(targetUrl, {
-        mode: "no-cors",
-      })
+      fetch(proxyUrl + targetUrl)
       .then(blob => blob.json())
       .then(data => {
         this.roomList = data.data;
@@ -168,9 +163,9 @@ export default {
     },
     requestRoom(roomId) {
       var self = this;
-      // var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      var proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
       var targetUrl = "http://www.litatom.com/api/sns/v1/lit/user/enter_party?party_id="+roomId+"&loc=US&sid=session."+this.key+"&version=3.7.1&uuid=1944739c55bbc885";
-      fetch(targetUrl)
+      fetch(proxyUrl + targetUrl)
       .then(blob => blob.json())
       .then(data => {
         if (data.success == true) {
