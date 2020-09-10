@@ -2,7 +2,7 @@
   <div id="app">
     <b-container v-if="!key">
         <b-jumbotron header="Tooling" lead="Author">
-          <p>|</p>
+          
         </b-jumbotron>
 
         <b-form-group
@@ -14,6 +14,9 @@
         </b-form-group>
     </b-container>
     <b-container v-else>
+      <b-jumbotron class="request">
+        <span v-for="i in node" :key="i" class="dot"></span>
+      </b-jumbotron>
         <b-row>
           <b-col>
             <b-button @click="getRoomList">Refresh Room</b-button>
@@ -74,6 +77,7 @@ export default {
   data () {
     return {
       busy: false,
+      node: 0,
       timeout: null,
       isBusy: false,
       objAttacking: [],
@@ -112,7 +116,8 @@ export default {
         { key: 'actions', label: 'Actions' }
       ],
       roomList: [],
-      key: '1284139985398150948',
+      key: '1284211630299799252',
+      proxy: 'http://localhost:3000/pipe/',
       state: false,
       roomId: '',
     }
@@ -137,7 +142,7 @@ export default {
       },
     getRoomList () {
       this.isBusy = true;
-      var proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
+      var proxyUrl = this.proxy;
       var targetUrl = 'http://www.litatom.com/api/sns/v1/lit/user/get_party_list?page_num=1&page_size=100&loc=US&sid=session.' + this.key + '&version=3.7.1&uuid=1944739c55bbc885';
       fetch(proxyUrl + targetUrl)
       .then(blob => blob.json())
@@ -163,14 +168,16 @@ export default {
     },
     requestRoom(roomId) {
       var self = this;
-      var proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
+      var proxyUrl = this.proxy;
       var targetUrl = "http://www.litatom.com/api/sns/v1/lit/user/enter_party?party_id="+roomId+"&loc=US&sid=session."+this.key+"&version=3.7.1&uuid=1944739c55bbc885";
       fetch(proxyUrl + targetUrl)
       .then(blob => blob.json())
       .then(data => {
         if (data.success == true) {
+          self.node++;
           self.requestRoom(roomId);
         } else {
+          self.node = 0;
           self.stateAttacking = 'DIE'
           self.$bvModal.show('bv-modal-example');
           self.busy = false
@@ -194,5 +201,19 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+body {
+  background-color: #16181a !important;
+}
+.dot {
+  height: 15px;
+  width: 15px;
+  background-color: rgb(8, 255, 41);
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
+.request {
+  background-color: #16181a !important;
 }
 </style>
