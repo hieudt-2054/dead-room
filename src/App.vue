@@ -68,6 +68,9 @@ export default {
   },
   mounted() {
     this.getRoomList();
+    setInterval(() => {
+      this.getRoomList();
+    }, 60000)
   },
   watch: {
   },
@@ -116,7 +119,7 @@ export default {
         { key: 'actions', label: 'Actions' }
       ],
       roomList: [],
-      key: '1284211630299799252',
+      key: '1284221953389299865',
       proxy: 'http://localhost:3000/pipe/',
       state: false,
       roomId: '',
@@ -124,22 +127,22 @@ export default {
   },
   methods: {
     clearTimeout() {
-        if (this.timeout) {
-          clearTimeout(this.timeout)
-          this.timeout = null
-        }
-      },
-      setTimeout(callback) {
+      if (this.timeout) {
+        clearTimeout(this.timeout)
+        this.timeout = null
+      }
+    },
+    setTimeout(callback) {
+      this.clearTimeout()
+      this.timeout = setTimeout(() => {
         this.clearTimeout()
-        this.timeout = setTimeout(() => {
-          this.clearTimeout()
-          callback()
-        }, 5000)
-      },
-      onHidden() {
-        // Return focus to the button once hidden
-        this.$refs.button.focus()
-      },
+        callback()
+      }, 5000)
+    },
+    onHidden() {
+      // Return focus to the button once hidden
+      this.$refs.button.focus()
+    },
     getRoomList () {
       this.isBusy = true;
       var proxyUrl = this.proxy;
