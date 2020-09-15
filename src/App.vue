@@ -168,9 +168,6 @@ export default {
     async loopAttack(roomId) {
       roomId.active = true;
       this.stateAttacking = 'Process';
-      this.objAttacking.push(roomId);
-      this.requestRoom(roomId);
-      this.requestRoom(roomId);
       this.requestRoom(roomId);
       this.requestRoom(roomId);
       this.requestRoom(roomId);
@@ -184,7 +181,7 @@ export default {
       .then(data => {
         if (data.success == true) {
           self.node++;
-          self.loopAttack(roomId);
+          self.requestRoom(roomId);
         } else {
           self.node = 0;
           self.stateAttacking = 'DIE'
